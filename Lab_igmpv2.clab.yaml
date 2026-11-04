@@ -1,0 +1,76 @@
+name: igmpv2
+
+topology:
+  kinds:
+    nokia_srsim:
+      license: /home/jesusdavid/Licenses/SR_SIM25_1.txt
+      image: localhost/nokia/srsim:25.10.R2
+      type: sr-1
+
+  nodes:
+    r1:
+      kind: nokia_srsim
+    sw1:
+      kind: nokia_srsim
+    src:
+      kind: linux
+      image: ghcr.io/asadarafat/bngblaster:latest
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
+      binds:
+        - bngblaster:/config
+    rcv-a1:
+      kind: linux
+      image: ghcr.io/asadarafat/bngblaster:latest
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
+      binds:
+        - bngblaster:/config
+    rcv-a2:
+      kind: linux
+      image: ghcr.io/asadarafat/bngblaster:latest
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
+      binds:
+        - bngblaster:/config
+    rcv-b1:
+      kind: linux
+      image: ghcr.io/asadarafat/bngblaster:latest
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
+      binds:
+        - bngblaster:/config
+    rcv-b2:
+      kind: linux
+      image: ghcr.io/asadarafat/bngblaster:latest
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
+      binds:
+        - bngblaster:/config
+
+    h-linux-a:
+      kind: linux
+      image: wbitt/network-multitool:extra
+      exec:
+        - ip addr add 10.100.1.21/24 dev eth1
+    h-linux-b:
+      kind: linux
+      image: wbitt/network-multitool:extra
+      exec:
+        - ip addr add 10.100.2.21/24 dev eth1
+
+  links:
+    - endpoints: [ "src:eth1", "r1:1/1/c1/1" ]
+    - endpoints: [ "r1:1/1/c2/1", "sw1:1/1/c1/1" ]
+    - endpoints: [ "r1:1/1/c3/1", "sw1:1/1/c5/1" ]
+    - endpoints: [ "rcv-a1:eth1", "sw1:1/1/c2/1" ]
+    - endpoints: [ "rcv-a2:eth1", "sw1:1/1/c3/1" ]
+    - endpoints: [ "h-linux-a:eth1", "sw1:1/1/c4/1" ]
+    - endpoints: [ "rcv-b1:eth1", "sw1:1/1/c6/1" ]
+    - endpoints: [ "rcv-b2:eth1", "sw1:1/2/c1/1" ]
+    - endpoints: [ "h-linux-b:eth1", "sw1:1/2/c2/1" ]
