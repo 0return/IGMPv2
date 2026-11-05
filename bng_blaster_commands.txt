@@ -1,0 +1,3 @@
+# Run the source
+
+docker exec clab-igmpv2-src rm -f /run/bngblaster.sock
