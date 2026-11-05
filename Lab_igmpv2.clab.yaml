@@ -1,5 +1,4 @@
 name: igmpv2
-
 topology:
   kinds:
     nokia_srsim:
@@ -10,67 +9,73 @@ topology:
   nodes:
     r1:
       kind: nokia_srsim
+    r2:
+      kind: nokia_srsim
+    r3:
+      kind: nokia_srsim
     sw1:
       kind: nokia_srsim
+
     src:
       kind: linux
       image: ghcr.io/asadarafat/bngblaster:latest
-      cap-add:
-        - NET_ADMIN
-        - NET_RAW
+      cap-add: [NET_ADMIN, NET_RAW]
       binds:
         - bngblaster:/config
     rcv-a1:
       kind: linux
       image: ghcr.io/asadarafat/bngblaster:latest
-      cap-add:
-        - NET_ADMIN
-        - NET_RAW
+      cap-add: [NET_ADMIN, NET_RAW]
       binds:
         - bngblaster:/config
     rcv-a2:
       kind: linux
       image: ghcr.io/asadarafat/bngblaster:latest
-      cap-add:
-        - NET_ADMIN
-        - NET_RAW
+      cap-add: [NET_ADMIN, NET_RAW]
       binds:
         - bngblaster:/config
     rcv-b1:
       kind: linux
       image: ghcr.io/asadarafat/bngblaster:latest
-      cap-add:
-        - NET_ADMIN
-        - NET_RAW
+      cap-add: [NET_ADMIN, NET_RAW]
       binds:
         - bngblaster:/config
     rcv-b2:
       kind: linux
       image: ghcr.io/asadarafat/bngblaster:latest
-      cap-add:
-        - NET_ADMIN
-        - NET_RAW
+      cap-add: [NET_ADMIN, NET_RAW]
       binds:
         - bngblaster:/config
 
     h-linux-a:
       kind: linux
       image: wbitt/network-multitool:extra
+      sysctls:
+        net.ipv4.conf.all.force_igmp_version: 2
       exec:
         - ip addr add 10.100.1.21/24 dev eth1
     h-linux-b:
       kind: linux
       image: wbitt/network-multitool:extra
+      sysctls:
+        net.ipv4.conf.all.force_igmp_version: 2
       exec:
         - ip addr add 10.100.2.21/24 dev eth1
 
   links:
-    - endpoints: [ "src:eth1", "r1:1/1/c1/1" ]
-    - endpoints: [ "r1:1/1/c2/1", "sw1:1/1/c1/1" ]
-    - endpoints: [ "r1:1/1/c3/1", "sw1:1/1/c5/1" ]
-    - endpoints: [ "rcv-a1:eth1", "sw1:1/1/c2/1" ]
-    - endpoints: [ "rcv-a2:eth1", "sw1:1/1/c3/1" ]
-    - endpoints: [ "h-linux-a:eth1", "sw1:1/1/c4/1" ]
-    - endpoints: [ "rcv-b1:eth1", "sw1:1/1/c6/1" ]
-    - endpoints: [ "rcv-b2:eth1", "sw1:1/2/c1/1" ]
-    - endpoints: [ "h-linux-b:eth1", "sw1:1/2/c2/1" ]
+  
+    - endpoints: ["src:eth1", "r2:1/1/c1/1"]
+    - endpoints: ["r2:1/1/c2/1", "r1:1/1/c1/1"]
+    - endpoints: ["r2:1/1/c3/1", "r3:1/1/c1/1"]
+    - endpoints: ["r3:1/1/c2/1", "r1:1/1/c4/1"]
+    # R1 to SW1
+    - endpoints: ["r1:1/1/c2/1", "sw1:1/1/c1/1"]
+    - endpoints: ["r1:1/1/c3/1", "sw1:1/1/c5/1"]
+    # LAN-A (VPLS 100)
+    - endpoints: ["rcv-a1:eth1", "sw1:1/1/c2/1"]
+    - endpoints: ["rcv-a2:eth1", "sw1:1/1/c3/1"]
+    - endpoints: ["h-linux-a:eth1", "sw1:1/1/c4/1"]
+    # LAN-B (VPLS 200)
+    - endpoints: ["rcv-b1:eth1", "sw1:1/1/c6/1"]
+    - endpoints: ["rcv-b2:eth1", "sw1:1/2/c1/1"]
+    - endpoints: ["h-linux-b:eth1", "sw1:1/2/c2/1"]
