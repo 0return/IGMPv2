@@ -1,3 +1,8 @@
-# Run the source
+# Star the source
 
 docker exec -it clab-igmpv2-src bngblaster -C /config/src.json -S /run/bngblaster.sock -l info
+
+
+# Start the receivers
+for n in rcv-a1 rcv-a2 rcv-b1 rcv-b2; do docker exec -d clab-igmpv2-$n bngblaster-cli /run/bngblaster.sock 2>/dev/null; docker exec -d clab-igmpv2-$n bngblaster -C /config/$n.json -S /run/bngblaster.sock -L /config/out/$n.log -l info -l igmp -P /config/out/$n.pcap;
+
