@@ -1,3 +1,3 @@
 # Run the source
 
-docker exec clab-igmpv2-src rm -f /run/bngblaster.sock
+docker exec -it clab-igmpv2-src bngblaster -C /config/src.json -S /run/bngblaster.sock -l info
